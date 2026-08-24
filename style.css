@@ -71,7 +71,16 @@ h2 { margin: 0; font-size: clamp(34px, 4vw, 58px); font-weight: 600; letter-spac
 .comments-section { padding: 84px 0 96px; }
 .comments-shell { min-height: 220px; padding: 22px; border: 1px solid var(--line); background: #0b0b0b; }
 .comments-status { margin: 0; color: var(--muted); font-size: 12px; letter-spacing: 0.06em; }
-.comments-shell .utterances { max-width: none; }
+.comments-list { display: grid; gap: 12px; }
+.comments-empty { margin: 0 0 24px; color: var(--muted); font-size: 13px; line-height: 1.7; }
+.comment-card { padding: 18px; border: 1px solid var(--line); background: #111; }
+.comment-meta { display: grid; grid-template-columns: 30px auto 1fr; gap: 10px; align-items: center; }
+.comment-meta img { width: 30px; height: 30px; border-radius: 50%; }
+.comment-meta strong { font-size: 12px; font-weight: 600; }
+.comment-meta time { justify-self: end; color: var(--muted); font-size: 10px; letter-spacing: 0.06em; }
+.comment-card > p { margin: 14px 0 0; white-space: pre-wrap; color: #d2d2cd; font-size: 13px; line-height: 1.7; }
+.comment-action { display: inline-flex; align-items: center; justify-content: space-between; gap: 42px; min-height: 46px; margin-top: 24px; padding: 0 16px; border: 1px solid var(--blue); background: var(--blue); color: white; font-size: 12px; }
+.comment-action:hover { border-color: white; background: white; color: var(--ink); }
 
 .toc-backdrop { position: fixed; z-index: 70; inset: 0; background: rgba(0, 0, 0, 0.68); backdrop-filter: blur(5px); }
 .toc-panel {
