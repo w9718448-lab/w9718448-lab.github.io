@@ -9,6 +9,7 @@
     <meta property="og:description" content="视觉体验与创意探索 · Visual Communication Portfolio 2026" />
     <meta property="og:image" content="/og.jpg" />
     <link rel="icon" href="/favicon.svg" />
+    <link rel="preload" as="image" href="/pages/page-01.jpg" fetchpriority="high" />
     <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
@@ -18,7 +19,11 @@
           <span>WENJIA</span>
           <span class="wordmark-accent">PORTFOLIO · 2026</span>
         </a>
-        <div class="header-meta"><span>视觉传达设计</span><span>61 PAGES</span></div>
+        <nav class="header-nav" aria-label="作品集快捷导航">
+          <button class="header-link" id="toc-open" type="button" aria-controls="toc-panel" aria-expanded="false">目录</button>
+          <a class="header-link" href="#comments">评论</a>
+          <span class="page-total">61 PAGES</span>
+        </nav>
       </header>
 
       <section class="hero" id="top">
@@ -30,7 +35,7 @@
           <p class="access-note">无需登录 · 手机浏览器直接打开 · 页面按需加载</p>
         </div>
         <div class="cover-card">
-          <img src="/pages/page-01.jpg" alt="WenJia 2026 视觉传达设计作品集封面" draggable="false" />
+          <img src="/pages/page-01.jpg" alt="WenJia 2026 视觉传达设计作品集封面" width="1280" height="720" fetchpriority="high" draggable="false" />
           <span class="cover-index">01 / 61</span>
         </div>
       </section>
@@ -43,25 +48,142 @@
         <div class="page-stack" id="page-stack"></div>
       </section>
 
+      <section class="comments-section" id="comments" aria-labelledby="comments-title">
+        <div class="comments-heading">
+          <div>
+            <p class="eyebrow">COMMENTS &amp; FEEDBACK</p>
+            <h2 id="comments-title">评论与反馈</h2>
+          </div>
+          <p>浏览无需登录，发布评论时需要登录 GitHub。</p>
+        </div>
+        <div class="comments-shell" id="comments-shell">
+          <p class="comments-status" id="comments-status">评论区正在加载...</p>
+          <script
+            src="https://utteranc.es/client.js"
+            repo="w9718448-lab/w9718448-lab.github.io"
+            issue-term="pathname"
+            label="portfolio-comment"
+            theme="github-dark"
+            crossorigin="anonymous"
+            async
+          ></script>
+        </div>
+      </section>
+
       <footer><span>WENJIA PORTFOLIO</span><span>© 2026 SHAO WEN JIA</span></footer>
     </main>
+
+    <div class="toc-backdrop" id="toc-backdrop" hidden></div>
+    <aside class="toc-panel" id="toc-panel" aria-labelledby="toc-title" aria-hidden="true">
+      <div class="toc-header">
+        <div>
+          <p class="eyebrow">PORTFOLIO INDEX</p>
+          <h2 id="toc-title">目录</h2>
+        </div>
+        <button class="toc-close" id="toc-close" type="button" aria-label="关闭目录">关闭</button>
+      </div>
+      <nav class="toc-list" aria-label="作品项目目录">
+        <a class="toc-item" href="#page-04" data-section="page-04">
+          <span class="toc-number">01</span><span><strong>理石</strong><small>品牌设计 · 04至15页</small></span>
+        </a>
+        <a class="toc-item" href="#page-16" data-section="page-16">
+          <span class="toc-number">02</span><span><strong>嘉禾</strong><small>包装设计 · 16至25页</small></span>
+        </a>
+        <a class="toc-item" href="#page-26" data-section="page-26">
+          <span class="toc-number">03</span><span><strong>宠味食刻</strong><small>品牌设计 · 26至37页</small></span>
+        </a>
+        <a class="toc-item" href="#page-38" data-section="page-38">
+          <span class="toc-number">04</span><span><strong>龙略略</strong><small>IP 形象设计 · 38至46页</small></span>
+        </a>
+        <a class="toc-item" href="#page-47" data-section="page-47">
+          <span class="toc-number">05</span><span><strong>艺术节海报与物料</strong><small>视觉设计 · 47至52页</small></span>
+        </a>
+        <a class="toc-item" href="#page-53" data-section="page-53">
+          <span class="toc-number">06</span><span><strong>其他作品</strong><small>含 AI 工作流 · 53至60页</small></span>
+        </a>
+      </nav>
+      <a class="toc-comments" href="#comments">前往评论区 <span aria-hidden="true">↓</span></a>
+    </aside>
+
+    <div class="floating-tools" aria-label="快捷操作">
+      <button id="floating-toc" type="button" aria-controls="toc-panel" aria-expanded="false">目录</button>
+      <a href="#comments">评论</a>
+    </div>
+
     <script>
       const stack = document.getElementById("page-stack");
       for (let page = 1; page <= 61; page += 1) {
         const number = String(page).padStart(2, "0");
         const figure = document.createElement("figure");
         figure.className = "portfolio-page";
+        figure.id = `page-${number}`;
         const image = document.createElement("img");
         image.src = `/pages/page-${number}.jpg`;
         image.alt = `WenJia 作品集第 ${page} 页`;
-        image.loading = page <= 2 ? "eager" : "lazy";
+        image.loading = page === 1 ? "eager" : "lazy";
         image.decoding = "async";
+        image.width = 1280;
+        image.height = 720;
         image.draggable = false;
         const caption = document.createElement("figcaption");
         caption.textContent = `${number} / 61`;
         figure.append(image, caption);
         stack.append(figure);
       }
+
+      const tocPanel = document.getElementById("toc-panel");
+      const tocBackdrop = document.getElementById("toc-backdrop");
+      const tocButtons = [document.getElementById("toc-open"), document.getElementById("floating-toc")];
+      const tocClose = document.getElementById("toc-close");
+      const tocLinks = [...document.querySelectorAll(".toc-item, .toc-comments")];
+      let lastFocusedElement;
+
+      function setToc(open) {
+        tocPanel.setAttribute("aria-hidden", String(!open));
+        tocBackdrop.hidden = !open;
+        document.body.classList.toggle("toc-is-open", open);
+        tocButtons.forEach((button) => button.setAttribute("aria-expanded", String(open)));
+        if (open) {
+          lastFocusedElement = document.activeElement;
+          requestAnimationFrame(() => tocClose.focus());
+        } else if (lastFocusedElement) {
+          lastFocusedElement.focus();
+        }
+      }
+
+      tocButtons.forEach((button) => button.addEventListener("click", () => setToc(true)));
+      tocClose.addEventListener("click", () => setToc(false));
+      tocBackdrop.addEventListener("click", () => setToc(false));
+      tocLinks.forEach((link) => link.addEventListener("click", () => setToc(false)));
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && tocPanel.getAttribute("aria-hidden") === "false") setToc(false);
+      });
+
+      const sectionStarts = ["page-04", "page-16", "page-26", "page-38", "page-47", "page-53"];
+      const sectionObserver = new IntersectionObserver(
+        (entries) => {
+          const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+          if (!visible) return;
+          document.querySelectorAll(".toc-item").forEach((item) => {
+            const isActive = item.dataset.section === visible.target.id;
+            item.classList.toggle("is-active", isActive);
+            if (isActive) item.setAttribute("aria-current", "true");
+            else item.removeAttribute("aria-current");
+          });
+        },
+        { rootMargin: "-20% 0px -65% 0px", threshold: [0, 0.1] }
+      );
+      sectionStarts.forEach((id) => sectionObserver.observe(document.getElementById(id)));
+
+      const commentsShell = document.getElementById("comments-shell");
+      const commentsStatus = document.getElementById("comments-status");
+      const commentsObserver = new MutationObserver(() => {
+        if (commentsShell.querySelector("iframe")) {
+          commentsStatus.hidden = true;
+          commentsObserver.disconnect();
+        }
+      });
+      commentsObserver.observe(commentsShell, { childList: true });
     </script>
   </body>
 </html>
