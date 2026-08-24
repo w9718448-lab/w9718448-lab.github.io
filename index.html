@@ -73,7 +73,7 @@
           <p class="eyebrow">PORTFOLIO INDEX</p>
           <h2 id="toc-title">目录</h2>
         </div>
-        <button class="toc-close" id="toc-close" type="button" aria-label="关闭目录">关闭</button>
+        <button class="toc-close" id="toc-close" type="button" aria-label="收起目录">收起</button>
       </div>
       <nav class="toc-list" aria-label="作品项目目录">
         <a class="toc-item" href="#page-04" data-section="page-04">
@@ -129,28 +129,57 @@
       const tocButtons = [document.getElementById("toc-open"), document.getElementById("floating-toc")];
       const tocClose = document.getElementById("toc-close");
       const tocLinks = [...document.querySelectorAll(".toc-item, .toc-comments")];
+      const desktopLayout = window.matchMedia("(min-width: 1024px)");
+      let desktopCollapsed = false;
+      let mobileOpen = false;
       let lastFocusedElement;
 
-      function setToc(open) {
-        tocPanel.setAttribute("aria-hidden", String(!open));
-        tocBackdrop.hidden = !open;
-        document.body.classList.toggle("toc-is-open", open);
+      function syncToc(focusPanel = false) {
+        const desktop = desktopLayout.matches;
+        const open = desktop ? !desktopCollapsed : mobileOpen;
+        tocPanel.dataset.collapsed = String(desktop && desktopCollapsed);
+        tocPanel.setAttribute("aria-hidden", String(!desktop && !mobileOpen));
+        tocBackdrop.hidden = desktop || !mobileOpen;
+        document.body.classList.toggle("sidebar-collapsed", desktop && desktopCollapsed);
+        document.body.classList.toggle("toc-is-open", !desktop && mobileOpen);
         tocButtons.forEach((button) => button.setAttribute("aria-expanded", String(open)));
-        if (open) {
+        tocClose.textContent = desktop && desktopCollapsed ? "展开" : desktop ? "收起" : "关闭";
+        tocClose.setAttribute("aria-label", tocClose.textContent + "目录");
+        if (focusPanel && !desktop && mobileOpen) {
           lastFocusedElement = document.activeElement;
           requestAnimationFrame(() => tocClose.focus());
-        } else if (lastFocusedElement) {
+        } else if (!desktop && !mobileOpen && lastFocusedElement) {
           lastFocusedElement.focus();
+          lastFocusedElement = null;
         }
       }
 
-      tocButtons.forEach((button) => button.addEventListener("click", () => setToc(true)));
-      tocClose.addEventListener("click", () => setToc(false));
-      tocBackdrop.addEventListener("click", () => setToc(false));
-      tocLinks.forEach((link) => link.addEventListener("click", () => setToc(false)));
+      function toggleToc() {
+        if (desktopLayout.matches) desktopCollapsed = !desktopCollapsed;
+        else mobileOpen = !mobileOpen;
+        syncToc(true);
+      }
+
+      function closeToc() {
+        if (desktopLayout.matches) desktopCollapsed = true;
+        else mobileOpen = false;
+        syncToc();
+      }
+
+      tocButtons.forEach((button) => button.addEventListener("click", toggleToc));
+      tocClose.addEventListener("click", toggleToc);
+      tocBackdrop.addEventListener("click", closeToc);
+      tocLinks.forEach((link) => link.addEventListener("click", () => {
+        if (!desktopLayout.matches) closeToc();
+      }));
       document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape" && tocPanel.getAttribute("aria-hidden") === "false") setToc(false);
+        if (event.key === "Escape") closeToc();
       });
+      desktopLayout.addEventListener("change", () => {
+        mobileOpen = false;
+        syncToc();
+      });
+      syncToc();
 
       const sectionStarts = ["page-04", "page-16", "page-26", "page-38", "page-47", "page-53"];
       const sectionObserver = new IntersectionObserver(
