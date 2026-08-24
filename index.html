@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WenJia 作品集</title>
+    <meta name="description" content="邵文佳视觉传达设计作品集：系统思考、品牌包装、清晰表达与 IP 插画宣传。" />
+    <meta property="og:title" content="WenJia 作品集" />
+    <meta property="og:description" content="视觉体验与创意探索 · Visual Communication Portfolio 2026" />
+    <meta property="og:image" content="/og.png" />
+    <link rel="icon" href="/favicon.svg" />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <main>
+      <header class="site-header">
+        <a class="wordmark" href="#top" aria-label="回到作品集顶部">
+          <span>WENJIA</span>
+          <span class="wordmark-accent">PORTFOLIO · 2026</span>
+        </a>
+        <div class="header-meta"><span>视觉传达设计</span><span>61 PAGES</span></div>
+      </header>
+
+      <section class="hero" id="top">
+        <div class="hero-copy">
+          <p class="eyebrow">DESIGN WITH CLARITY, PURPOSE AND IMPACT.</p>
+          <h1>邵文佳<span>作品集</span></h1>
+          <p class="intro">视觉体验与创意探索，涵盖系统思考、品牌包装、清晰表达与 IP 插画宣传。</p>
+          <a class="primary-action" href="#portfolio">开始浏览 <span aria-hidden="true">↓</span></a>
+          <p class="access-note">无需登录 · 手机浏览器直接打开 · 页面按需加载</p>
+        </div>
+        <div class="cover-card">
+          <img src="/pages/page-01.jpg" alt="WenJia 2026 视觉传达设计作品集封面" draggable="false" />
+          <span class="cover-index">01 / 61</span>
+        </div>
+      </section>
+
+      <section class="viewer-section" id="portfolio" aria-labelledby="viewer-title">
+        <div class="viewer-heading">
+          <div><p class="eyebrow">FULL PORTFOLIO</p><h2 id="viewer-title">在线浏览</h2></div>
+          <p>共 61 页 · 向下滚动查看</p>
+        </div>
+        <div class="page-stack" id="page-stack"></div>
+      </section>
+
+      <footer><span>WENJIA PORTFOLIO</span><span>© 2026 SHAO WEN JIA</span></footer>
+    </main>
+    <script>
+      const stack = document.getElementById("page-stack");
+      for (let page = 1; page <= 61; page += 1) {
+        const number = String(page).padStart(2, "0");
+        const figure = document.createElement("figure");
+        figure.className = "portfolio-page";
+        const image = document.createElement("img");
+        image.src = `/pages/page-${number}.jpg`;
+        image.alt = `WenJia 作品集第 ${page} 页`;
+        image.loading = page <= 2 ? "eager" : "lazy";
+        image.decoding = "async";
+        image.draggable = false;
+        const caption = document.createElement("figcaption");
+        caption.textContent = `${number} / 61`;
+        figure.append(image, caption);
+        stack.append(figure);
+      }
+    </script>
+  </body>
+</html>
