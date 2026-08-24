@@ -58,15 +58,8 @@
         </div>
         <div class="comments-shell" id="comments-shell">
           <p class="comments-status" id="comments-status">评论区正在加载...</p>
-          <script
-            src="https://utteranc.es/client.js"
-            repo="w9718448-lab/w9718448-lab.github.io"
-            issue-term="pathname"
-            label="portfolio-comment"
-            theme="github-dark"
-            crossorigin="anonymous"
-            async
-          ></script>
+          <div class="comments-list" id="comments-list" aria-live="polite"></div>
+          <a class="comment-action" href="https://github.com/w9718448-lab/w9718448-lab.github.io/issues/1#new_comment_field" target="_blank" rel="noreferrer">登录 GitHub 发表评论 <span aria-hidden="true">↗</span></a>
         </div>
       </section>
 
@@ -175,15 +168,53 @@
       );
       sectionStarts.forEach((id) => sectionObserver.observe(document.getElementById(id)));
 
-      const commentsShell = document.getElementById("comments-shell");
       const commentsStatus = document.getElementById("comments-status");
-      const commentsObserver = new MutationObserver(() => {
-        if (commentsShell.querySelector("iframe")) {
-          commentsStatus.hidden = true;
-          commentsObserver.disconnect();
+      const commentsList = document.getElementById("comments-list");
+
+      function renderComments(comments) {
+        commentsStatus.hidden = true;
+        if (!comments.length) {
+          const empty = document.createElement("p");
+          empty.className = "comments-empty";
+          empty.textContent = "暂时还没有评论，欢迎留下第一条反馈。";
+          commentsList.append(empty);
+          return;
         }
-      });
-      commentsObserver.observe(commentsShell, { childList: true });
+        comments.forEach((comment) => {
+          const article = document.createElement("article");
+          article.className = "comment-card";
+          const meta = document.createElement("div");
+          meta.className = "comment-meta";
+          const avatar = document.createElement("img");
+          avatar.src = comment.user.avatar_url;
+          avatar.alt = "";
+          avatar.width = 30;
+          avatar.height = 30;
+          avatar.loading = "lazy";
+          const author = document.createElement("strong");
+          author.textContent = comment.user.login;
+          const time = document.createElement("time");
+          time.dateTime = comment.created_at;
+          time.textContent = new Intl.DateTimeFormat("zh-CN", { year: "numeric", month: "short", day: "numeric" }).format(new Date(comment.created_at));
+          meta.append(avatar, author, time);
+          const body = document.createElement("p");
+          body.textContent = comment.body;
+          article.append(meta, body);
+          commentsList.append(article);
+        });
+      }
+
+      fetch("https://api.github.com/repos/w9718448-lab/w9718448-lab.github.io/issues/1/comments", {
+        headers: { Accept: "application/vnd.github+json" }
+      })
+        .then((response) => {
+          if (!response.ok) throw new Error("comments unavailable");
+          return response.json();
+        })
+        .then(renderComments)
+        .catch(() => {
+          commentsStatus.textContent = "评论暂时无法载入，可点击下方按钮前往 GitHub 查看或发表。";
+        });
     </script>
   </body>
 </html>
