@@ -1,0 +1,99 @@
+name: 更新作品集
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'source/portfolio.pdf'
+      - '.github/workflows/publish.yml'
+      - '.github/scripts/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: portfolio-build
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: 检查 Pages 发布配置
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/${{ github.repository }}/pages" > "$RUNNER_TEMP/pages-settings.json"
+          python3 - <<'CHECK'
+          import json, os
+          from pathlib import Path
+          cfg = json.loads((Path(os.environ['RUNNER_TEMP']) / 'pages-settings.json').read_text())
+          source = cfg.get('source', {})
+          print('Pages:', cfg.get('build_type'), source)
+          if cfg.get('build_type') != 'legacy' or source != {'branch': 'main', 'path': '/'}:
+              raise SystemExit('需要 Pages 使用 main / (root) 分支发布；本流程未修改设置。')
+          CHECK
+
+      - name: 安装转换工具
+        run: |
+          command -v pdftoppm >/dev/null || (sudo apt-get update && sudo apt-get install -y poppler-utils)
+          python3 -m pip install --quiet 'Pillow>=10,<13'
+
+      - name: 临时 PDF 转换与缩页检查
+        run: python3 .github/scripts/smoke_test.py
+
+      - name: 检查正式 PDF
+        id: input
+        run: |
+          if [ -f source/portfolio.pdf ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "尚未上传正式 PDF，保留当前作品图片。" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: PDF 转页面图片
+        if: steps.input.outputs.exists == 'true'
+        run: python3 .github/scripts/build_pages.py
+
+      - name: 提交更新后的页面
+        if: steps.input.outputs.exists == 'true'
+        run: |
+          git config user.name "portfolio-bot"
+          git config user.email "portfolio-bot@users.noreply.github.com"
+          git add -A pages index.html
+          if ! git diff --cached --quiet; then
+            git commit -m "自动更新作品集页面"
+            # 远程有新提交时拒绝覆盖；重新运行即可从最新 main 构建。
+            git push origin HEAD:main
+          fi
+
+      - name: 请求并确认 GitHub Pages 发布
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          expected=$(git rev-parse HEAD)
+          gh api -X POST "repos/${{ github.repository }}/pages/builds"
+          for attempt in $(seq 1 60); do
+            gh api "repos/${{ github.repository }}/pages/builds/latest" > "$RUNNER_TEMP/latest-build.json"
+            status=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["status"])' "$RUNNER_TEMP/latest-build.json")
+            commit=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["commit"])' "$RUNNER_TEMP/latest-build.json")
+            if [ "$commit" = "$expected" ] && [ "$status" = "built" ]; then
+              echo "Pages 发布成功：$commit" >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            if [ "$commit" = "$expected" ] && [ "$status" = "errored" ]; then
+              cat "$RUNNER_TEMP/latest-build.json"
+              exit 1
+            fi
+            sleep 10
+          done
+          echo "Pages 发布未在 10 分钟内确认，请检查部署记录。"
+          exit 1

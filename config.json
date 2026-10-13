@@ -1,0 +1,42 @@
+{
+  "image_width": 1600,
+  "jpeg_quality": 82,
+  "sections": [
+    {
+      "title": "理石",
+      "type": "品牌设计",
+      "start": 4,
+      "end": 15
+    },
+    {
+      "title": "嘉禾",
+      "type": "包装设计",
+      "start": 16,
+      "end": 25
+    },
+    {
+      "title": "宠味食刻",
+      "type": "品牌设计",
+      "start": 26,
+      "end": 37
+    },
+    {
+      "title": "龙略略",
+      "type": "IP 形象设计",
+      "start": 38,
+      "end": 46
+    },
+    {
+      "title": "艺术节海报与物料",
+      "type": "视觉设计",
+      "start": 47,
+      "end": 52
+    },
+    {
+      "title": "其他作品",
+      "type": "含 AI 工作流",
+      "start": 53,
+      "end": 60
+    }
+  ]
+}

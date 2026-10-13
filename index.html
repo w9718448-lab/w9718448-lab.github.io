@@ -9,7 +9,7 @@
     <meta property="og:description" content="视觉体验与创意探索 · Visual Communication Portfolio 2026" />
     <meta property="og:image" content="/og.jpg" />
     <link rel="icon" href="/favicon.svg" />
-    <link rel="preload" as="image" href="/pages/page-01.jpg" fetchpriority="high" />
+    <link rel="preload" as="image" href="/pages/page-01.jpg?v=initial" fetchpriority="high" />
     <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
@@ -22,7 +22,7 @@
         <nav class="header-nav" aria-label="作品集快捷导航">
           <button class="header-link" id="toc-open" type="button" aria-controls="toc-panel" aria-expanded="false">目录</button>
           <a class="header-link" href="#comments">评论</a>
-          <span class="page-total">61 PAGES</span>
+          <span class="page-total" id="page-total"></span>
         </nav>
       </header>
 
@@ -35,15 +35,15 @@
           <p class="access-note">无需登录 · 手机浏览器直接打开 · 页面按需加载</p>
         </div>
         <div class="cover-card">
-          <img src="/pages/page-01.jpg" alt="WenJia 2026 视觉传达设计作品集封面" width="1280" height="720" fetchpriority="high" draggable="false" />
-          <span class="cover-index">01 / 61</span>
+          <img src="/pages/page-01.jpg?v=initial" alt="WenJia 2026 视觉传达设计作品集封面" width="1280" height="720" fetchpriority="high" draggable="false" />
+          <span class="cover-index" id="cover-index">01</span>
         </div>
       </section>
 
       <section class="viewer-section" id="portfolio" aria-labelledby="viewer-title">
         <div class="viewer-heading">
           <div><p class="eyebrow">FULL PORTFOLIO</p><h2 id="viewer-title">在线浏览</h2></div>
-          <p>共 61 页 · 向下滚动查看</p>
+          <p id="viewer-count">向下滚动查看</p>
         </div>
         <div class="page-stack" id="page-stack"></div>
       </section>
@@ -75,26 +75,7 @@
         </div>
         <button class="toc-close" id="toc-close" type="button" aria-label="收起目录">收起</button>
       </div>
-      <nav class="toc-list" aria-label="作品项目目录">
-        <a class="toc-item" href="#page-04" data-section="page-04">
-          <span class="toc-number">01</span><span><strong>理石</strong><small>品牌设计 · 04至15页</small></span>
-        </a>
-        <a class="toc-item" href="#page-16" data-section="page-16">
-          <span class="toc-number">02</span><span><strong>嘉禾</strong><small>包装设计 · 16至25页</small></span>
-        </a>
-        <a class="toc-item" href="#page-26" data-section="page-26">
-          <span class="toc-number">03</span><span><strong>宠味食刻</strong><small>品牌设计 · 26至37页</small></span>
-        </a>
-        <a class="toc-item" href="#page-38" data-section="page-38">
-          <span class="toc-number">04</span><span><strong>龙略略</strong><small>IP 形象设计 · 38至46页</small></span>
-        </a>
-        <a class="toc-item" href="#page-47" data-section="page-47">
-          <span class="toc-number">05</span><span><strong>艺术节海报与物料</strong><small>视觉设计 · 47至52页</small></span>
-        </a>
-        <a class="toc-item" href="#page-53" data-section="page-53">
-          <span class="toc-number">06</span><span><strong>其他作品</strong><small>含 AI 工作流 · 53至60页</small></span>
-        </a>
-      </nav>
+      <nav class="toc-list" id="toc-list" aria-label="作品项目目录"></nav>
       <a class="toc-comments" href="#comments">前往评论区 <span aria-hidden="true">↓</span></a>
     </aside>
 
@@ -104,26 +85,73 @@
     </div>
 
     <script>
-      const stack = document.getElementById("page-stack");
-      for (let page = 1; page <= 61; page += 1) {
-        const number = String(page).padStart(2, "0");
-        const figure = document.createElement("figure");
-        figure.className = "portfolio-page";
-        figure.id = `page-${number}`;
-        const image = document.createElement("img");
-        image.src = `/pages/page-${number}.jpg`;
-        image.alt = `WenJia 作品集第 ${page} 页`;
-        image.loading = page === 1 ? "eager" : "lazy";
-        image.decoding = "async";
-        image.width = 1280;
-        image.height = 720;
-        image.draggable = false;
-        const caption = document.createElement("figcaption");
-        caption.textContent = `${number} / 61`;
-        figure.append(image, caption);
-        stack.append(figure);
+      const pad = (n) => String(n).padStart(2, "0");
+
+      async function loadJson(url) {
+        const response = await fetch(url, { cache: "no-cache" });
+        if (!response.ok) throw new Error(url);
+        return response.json();
       }
 
+      function buildPages(meta) {
+        const stack = document.getElementById("page-stack");
+        const total = meta.count;
+        if (!Number.isInteger(total) || total < 1 || !Array.isArray(meta.pages) || meta.pages.length !== total) {
+          throw new Error("Invalid page manifest");
+        }
+        const cover = document.querySelector(".cover-card img");
+        cover.src = `/pages/page-01.jpg?v=${encodeURIComponent(meta.version)}`;
+        [cover.width, cover.height] = meta.pages[0];
+        for (let page = 1; page <= total; page += 1) {
+          const number = pad(page);
+          const [width, height] = meta.pages[page - 1] || [1280, 720];
+          const figure = document.createElement("figure");
+          figure.className = "portfolio-page";
+          figure.id = `page-${number}`;
+          const image = document.createElement("img");
+          image.src = `/pages/page-${number}.jpg?v=${meta.version}`;
+          image.alt = `WenJia 作品集第 ${page} 页`;
+          image.loading = page === 1 ? "eager" : "lazy";
+          image.decoding = "async";
+          image.width = width;
+          image.height = height;
+          image.draggable = false;
+          const caption = document.createElement("figcaption");
+          caption.textContent = `${number} / ${pad(total)}`;
+          figure.append(image, caption);
+          stack.append(figure);
+        }
+        document.getElementById("page-total").textContent = `${total} PAGES`;
+        document.getElementById("cover-index").textContent = `01 / ${pad(total)}`;
+        document.getElementById("viewer-count").textContent = `共 ${total} 页 · 向下滚动查看`;
+      }
+
+      function buildToc(meta, config) {
+        const list = document.getElementById("toc-list");
+        const sections = (config.sections || []).filter((s) => s.start >= 1 && s.start <= meta.count);
+        sections.forEach((section, index) => {
+          const next = sections[index + 1];
+          const end = Math.min(section.end || (next ? next.start - 1 : meta.count), meta.count);
+          const link = document.createElement("a");
+          link.className = "toc-item";
+          link.href = `#page-${pad(section.start)}`;
+          link.dataset.section = `page-${pad(section.start)}`;
+          const number = document.createElement("span");
+          number.className = "toc-number";
+          number.textContent = pad(index + 1);
+          const body = document.createElement("span");
+          const title = document.createElement("strong");
+          title.textContent = section.title;
+          const small = document.createElement("small");
+          small.textContent = `${section.type ? section.type + " · " : ""}${pad(section.start)}至${pad(end)}页`;
+          body.append(title, small);
+          link.append(number, body);
+          list.append(link);
+        });
+        return sections.map((s) => `page-${pad(s.start)}`);
+      }
+
+      function initUi(sectionStarts) {
       const tocPanel = document.getElementById("toc-panel");
       const tocBackdrop = document.getElementById("toc-backdrop");
       const tocButtons = [document.getElementById("toc-open"), document.getElementById("floating-toc")];
@@ -180,8 +208,6 @@
         syncToc();
       });
       syncToc();
-
-      const sectionStarts = ["page-04", "page-16", "page-26", "page-38", "page-47", "page-53"];
       const sectionObserver = new IntersectionObserver(
         (entries) => {
           const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
@@ -196,6 +222,19 @@
         { rootMargin: "-20% 0px -65% 0px", threshold: [0, 0.1] }
       );
       sectionStarts.forEach((id) => sectionObserver.observe(document.getElementById(id)));
+      }
+
+      Promise.all([loadJson("/pages/pages.json"), loadJson("/config.json")])
+        .then(([meta, config]) => {
+          buildPages(meta);
+          const starts = buildToc(meta, config);
+          initUi(starts);
+          const target = document.getElementById(location.hash.slice(1));
+          if (target) target.scrollIntoView();
+        })
+        .catch(() => {
+          document.getElementById("viewer-count").textContent = "作品页载入失败，请刷新重试。";
+        });
 
       const commentsStatus = document.getElementById("comments-status");
       const commentsList = document.getElementById("comments-list");
