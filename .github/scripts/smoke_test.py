@@ -9,7 +9,7 @@ with tempfile.TemporaryDirectory() as directory:
     tmp=Path(directory)
     shutil.copy(root/'config.json',tmp/'config.json')
     shutil.copy(root/'index.html',tmp/'index.html')
-    images=[Image.open(root/'pages'/f'page-{i:02d}.jpg').convert('RGB') for i in (1,2)]
+    images=[Image.open(root/'pages'/'page-01.jpg').convert('RGB') for _ in range(2)]
     pdf=tmp/'test.pdf'
     def convert():
         return subprocess.run([sys.executable,str(root/'.github/scripts/build_pages.py'),'--pdf',str(pdf)],cwd=tmp,env=env,check=True)
