@@ -67,7 +67,7 @@ h1 span { display: block; color: transparent; -webkit-text-stroke: 1px rgba(255,
 .viewer-heading > p, .comments-heading > p { margin: 0 0 8px; color: var(--muted); font-size: 11px; line-height: 1.7; letter-spacing: 0.08em; }
 h2 { margin: 0; font-size: clamp(34px, 4vw, 58px); font-weight: 600; letter-spacing: -0.045em; }
 .page-stack { display: grid; gap: clamp(14px, 2vw, 28px); }
-.portfolio-page { position: relative; margin: 0; overflow: hidden; scroll-margin-top: 24px; border: 1px solid var(--line); background: #101010; content-visibility: auto; contain-intrinsic-size: auto 56.25vw; }
+.portfolio-page { position: relative; margin: 0; overflow: hidden; scroll-margin-top: 24px; border: 1px solid var(--line); background: #101010; }
 .portfolio-page figcaption { position: absolute; right: 0; bottom: 0; padding: 8px 10px; background: rgba(5, 5, 5, 0.78); color: rgba(255, 255, 255, 0.72); font-size: 9px; letter-spacing: 0.1em; backdrop-filter: blur(8px); }
 
 .comments-section { padding: 84px 0 96px; }

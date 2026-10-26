@@ -5,38 +5,38 @@
     {
       "title": "理石",
       "type": "品牌设计",
-      "start": 4,
-      "end": 15
+      "start": 3,
+      "end": 3
     },
     {
       "title": "嘉禾",
       "type": "包装设计",
-      "start": 16,
-      "end": 25
+      "start": 4,
+      "end": 4
     },
     {
       "title": "宠味食刻",
       "type": "品牌设计",
-      "start": 26,
-      "end": 37
+      "start": 5,
+      "end": 5
     },
     {
       "title": "龙略略",
-      "type": "IP 形象设计",
-      "start": 38,
-      "end": 46
+      "type": "文创 IP 形象设计",
+      "start": 6,
+      "end": 6
     },
     {
-      "title": "艺术节海报与物料",
-      "type": "视觉设计",
-      "start": 47,
-      "end": 52
+      "title": "寻宝奇遇记",
+      "type": "活动运营设计",
+      "start": 7,
+      "end": 7
     },
     {
-      "title": "其他作品",
-      "type": "含 AI 工作流",
-      "start": 53,
-      "end": 60
+      "title": "AI Agent 探索",
+      "type": "设计工作台搭建",
+      "start": 8,
+      "end": 8
     }
   ]
 }

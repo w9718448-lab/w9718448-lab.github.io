@@ -94,7 +94,7 @@ def main():
     # 封面图加版本号，避免浏览器继续显示旧封面
     if index.is_file():
         html = index.read_text(encoding="utf-8")
-        html2 = re.sub(r"(/pages/page-01\.jpg\?v=)[0-9A-Za-z]*", r"\g<1>" + version, html)
+        html2 = re.sub(r"(/pages/page-01\.jpg\?v=)[0-9A-Za-z]+(?=[\"\'])", r"\g<1>" + version, html)
         if html2 != html:
             index.write_text(html2, encoding="utf-8")
 

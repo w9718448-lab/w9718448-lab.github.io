@@ -19,6 +19,7 @@ with tempfile.TemporaryDirectory() as directory:
     assert meta['count']==2 and len(meta['pages'])==2
     assert all(w==1600 for w,h in meta['pages'])
     assert f"?v={meta['version']}" in (tmp/'index.html').read_text()
+    assert "v=${encodeURIComponent(meta.version)}" in (tmp/'index.html').read_text()
     images[0].save(pdf)
     convert()
     assert json.loads((tmp/'pages/pages.json').read_text())['count']==1
